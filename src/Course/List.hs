@@ -251,12 +251,17 @@ flattenAgain = flatMap id
 -- Empty
 --
 -- >>> seqOptional (Empty :. map Full infinity)
--- Empty
-seqOptional ::
-  List (Optional a)
-  -> Optional (List a)
-seqOptional =
-  error "todo: Course.List#seqOptional"
+-- -- Empty
+-- foldRight :: (a -> b -> b) -> b -> List a -> b
+-- foldRight _ b Nil      = b
+-- foldRight f b (h :. t) = f h (foldRight f b t)
+
+seqOptional :: List (Optional a) -> Optional (List a)
+seqOptional = foldRight f (Full Nil)
+    where f Empty _ = Empty
+          f _ Empty = Empty
+          f (Full x) (Full acc) = Full (x :. acc)
+--   error "todo: Course.List#seqOptional"
 
 -- | Find the first element in the list matching the predicate.
 --
@@ -274,10 +279,7 @@ seqOptional =
 --
 -- >>> find (const True) infinity
 -- Full 0
-find ::
-  (a -> Bool)
-  -> List a
-  -> Optional a
+find :: (a -> Bool) -> List a -> Optional a
 find _ Nil = Empty
 find g (x :. xs)
     | g x = Full x
@@ -297,11 +299,10 @@ find g (x :. xs)
 --
 -- >>> lengthGT4 infinity
 -- True
-lengthGT4 ::
-  List a
-  -> Bool
-lengthGT4 =
-  error "todo: Course.List#lengthGT4"
+lengthGT4 :: List a -> Bool
+lengthGT4 (_:._:._:._:._:._) = True
+lengthGT4 _ = False
+--   error "todo: Course.List#lengthGT4"
 
 -- | Reverse a list.
 --
@@ -314,11 +315,13 @@ lengthGT4 =
 -- prop> \x -> let types = x :: List Int in reverse x ++ reverse y == reverse (y ++ x)
 --
 -- prop> \x -> let types = x :: Int in reverse (x :. Nil) == x :. Nil
-reverse ::
-  List a
-  -> List a
-reverse =
-  error "todo: Course.List#reverse"
+-- foldLeft :: (b -> a -> b) -> b -> List a -> b
+-- foldLeft _ b Nil      = b
+-- foldLeft f b (h :. t) = let b' = f b h in b' `seq` foldLeft f b' t
+reverse :: List a -> List a
+reverse = foldLeft (flip (:.)) Nil
+
+--   error "todo: Course.List#reverse"
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
@@ -328,10 +331,7 @@ reverse =
 --
 -- >>> let (x:.y:.z:.w:._) = produce (*2) 1 in [x,y,z,w]
 -- [1,2,4,8]
-produce ::
-  (a -> a)
-  -> a
-  -> List a
+produce :: (a -> a) -> a -> List a
 produce f x = x :. produce f (f x)
 
 -- | Do anything other than reverse a list.
@@ -343,11 +343,8 @@ produce f x = x :. produce f (f x)
 -- prop> \x -> let types = x :: List Int in notReverse x ++ notReverse y == notReverse (y ++ x)
 --
 -- prop> \x -> let types = x :: Int in notReverse (x :. Nil) == x :. Nil
-notReverse ::
-  List a
-  -> List a
-notReverse =
-  error "todo: Is it even possible?"
+notReverse :: List a -> List a
+notReverse = id
 
 ---- End of list exercises
 
