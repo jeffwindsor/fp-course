@@ -121,7 +121,7 @@ void ::
   Functor f =>
   f a
   -> f ()
-void fa = const () <$> fa
+void fa = () <$ fa
 --   error "todo: Course.Functor#void"
 
 -----------------------
